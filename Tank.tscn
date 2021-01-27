@@ -1,0 +1,60 @@
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://Tank.cs" type="Script" id=1]
+[ext_resource path="res://EditValueScene.tscn" type="PackedScene" id=3]
+
+[sub_resource type="RectangleShape2D" id=1]
+
+[node name="Tank" type="KinematicBody2D"]
+input_pickable = true
+script = ExtResource( 1 )
+
+[node name="HitBox" type="CollisionShape2D" parent="."]
+shape = SubResource( 1 )
+
+[node name="TankInfo" type="RichTextLabel" parent="."]
+visible = false
+margin_left = -1.0
+margin_right = 239.0
+margin_bottom = 46.0
+bbcode_enabled = true
+bbcode_text = "#####
+Place Holder
+#####"
+text = "#####
+Place Holder
+#####"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Edit" type="Button" parent="."]
+visible = false
+margin_left = 1.0
+margin_top = 51.0
+margin_right = 70.0
+margin_bottom = 71.0
+text = "Edit Data"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Hide Info" type="Button" parent="."]
+visible = false
+margin_left = 78.1272
+margin_top = 51.0
+margin_right = 149.127
+margin_bottom = 71.0
+text = "Hide Info"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="EditValue" parent="." instance=ExtResource( 3 )]
+visible = false
+[connection signal="_on_tank_EditInfo" from="." to="EditValue" method="_on_Tank_on_tank_EditInfo"]
+[connection signal="mouse_entered" from="." to="." method="_on_Tank_mouse_entered"]
+[connection signal="mouse_exited" from="." to="." method="_on_Tank_mouse_exited"]
+[connection signal="pressed" from="Edit" to="." method="_on_Edit_pressed"]
+[connection signal="pressed" from="Hide Info" to="." method="_on_Hide_Info_pressed"]
+[connection signal="send_and_set_new_values" from="EditValue" to="." method="_on_EditValue_send_and_set_new_values"]

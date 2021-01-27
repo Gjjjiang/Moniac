@@ -15,9 +15,14 @@ _global_script_class_icons={
 
 [application]
 
-config/name="MoniacSimulation"
-run/main_scene="res://TitleScreen.tscn"
+config/name="MoniacVisualSimulation"
+run/main_scene="res://MainScene.tscn"
 config/icon="res://icon.png"
+
+[display]
+
+window/stretch/mode="viewport"
+window/stretch/aspect="keep"
 
 [rendering]
 
