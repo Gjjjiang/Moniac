@@ -1,8 +1,7 @@
 using Godot;
 using System;
 
-public class MainScene : Node2D
-{
+public class MainScene : Node2D{
     
     public bool started = false, paused = false;
     
@@ -11,8 +10,8 @@ public class MainScene : Node2D
         started = false;
         paused = false;
 
-        ((Button) GetNode("Start_Stop")).Text = "Start";
-        ((Button) GetNode("PauseButton")).Text = "Pause";
+        ((Button) GetNode("Controls/Start_Stop")).Text = "Start";
+        ((Button) GetNode("Controls/PauseButton")).Text = "Pause";
     }
 
     //  // Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -26,7 +25,7 @@ public class MainScene : Node2D
         if(!started){
             started = true;
             paused = false;
-            ((Button) GetNode("Start_Stop")).Text = "Reset";
+            ((Button) GetNode("Controls/Start_Stop")).Text = "Reset";
 
         }
         else{
@@ -36,14 +35,15 @@ public class MainScene : Node2D
 
     public void _on_PauseButton_pressed(){
         if(!paused){
-            ((Button) GetNode("PauseButton")).Text = "Continue";
+            ((Button) GetNode("Controls/PauseButton")).Text = "Continue";
             paused=true;
         }
         else{
-            ((Button) GetNode("PauseButton")).Text = "Pause";
+            ((Button) GetNode("Controls/PauseButton")).Text = "Pause";
             paused=false;
         }
     }
+
     /*
     public override void _Input(InputEvent @event){
         // Mouse in viewport coordinates.

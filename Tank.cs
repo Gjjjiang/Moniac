@@ -1,18 +1,47 @@
 using Godot;
 using System;
+using System.Runtime.InteropServices;
+ [StructLayout(LayoutKind.Sequential)] public struct ExtU_water_tank_T{
+     public double flow_in;
+     public double flow_out;
+     public double StartVol;
+ }; 
 
+[StructLayout(LayoutKind.Sequential)]public struct ExtY_water_tank_T{
+    public double CurrentVol;  
+};
 public class Tank : KinematicBody2D{
-
-    [Export]public float x_coor =0, y_coor =0, wall_thickness =4, wall_height=100, wall_width=50;
- 
+    //======= Import functions from water_tank_win64.dll ===========
     
+    //initializes the water tank matlab model
+    [DllImport("water_tank_win64.dll")] public static extern void water_tank_initialize(); 
+    
+    //steps the simulation forward by 1/60 seconds
+    [DllImport("water_tank_win64.dll")] public static extern void water_tank_step(); 
+    
+    //water tank model destructor
+    [DllImport("water_tank_win64.dll")] public static extern void water_tank_terminate(); 
+   
+    //sets flow rate in
+    [DllImport("water_tank_win64.dll")] public static extern void _setFlowIn(double FlowInInput); 
+    
+
+    [DllImport("water_tank_win64.dll")] public static extern void _setFlowOut(double FlowOutInput); //sets flow rate out
+    
+    //sets initial volume
+    [DllImport("water_tank_win64.dll")] public static extern void _setStartVol(double StartVolInput);
+    
+    //returns current volume, calculated from differential equation dV/dt = flow in - flow out
+    [DllImport("water_tank_win64.dll")] public static extern double _getCurrentVol(); 
+    //===================================================================
+    [Export]public float x_coor =0, y_coor =0, wall_thickness =4, wall_height=100, wall_width=50;
     [Export]public float fill_percent;
     [Export]public float crossArea, maxVol, currentVol;
-    Color water_color;
-
+   
     public override void _Draw(){
        draw_tank(x_coor,y_coor,wall_thickness,wall_height,wall_width,fill_percent);
     }
+
     public void draw_tank(float x,float y, float thickness,float height,float width, float fill_percent){
         //Align info page to Tank
         updateTankInfo();
@@ -37,6 +66,8 @@ public class Tank : KinematicBody2D{
     }
     // Called when the node enters the scene tree for the first time.
     public override void _Ready(){
+        water_tank_initialize();
+
         currentVol = 0.0f;
         maxVol = 0.0f;
         crossArea = 0.0f;
@@ -51,6 +82,8 @@ public class Tank : KinematicBody2D{
 
     public override void _PhysicsProcess(float delta){
         Update();
+        water_tank_step();
+        //GD.Print(_getCurrentVol());
     }
 
     
@@ -60,6 +93,8 @@ public class Tank : KinematicBody2D{
         "Water Height: "+ (currentVol/crossArea).ToString()+ " m \n" + 
         "Cross Sectional Area: " + (crossArea).ToString()+ "m^2";
     }
+
+    //Signal Emitters and Listeners
 
     public void _on_Hide_Info_pressed(){
         ((RichTextLabel) GetNode("TankInfo")).Visible=false;

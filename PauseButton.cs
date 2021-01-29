@@ -12,7 +12,7 @@ public class PauseButton : Button
     {
         
     }
-
+/*
     public void _on_PauseButton(){
         if(!paused){
             ((Button) GetNode("PauseButton")).Text = "Continue";
@@ -22,7 +22,7 @@ public class PauseButton : Button
             ((Button) GetNode("PauseButton")).Text = "Pause";
             paused=false;
         }
-    }
+    }*/
 //  // Called every frame. 'delta' is the elapsed time since the previous frame.
 //  public override void _Process(float delta)
 //  {

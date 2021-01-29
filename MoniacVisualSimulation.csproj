@@ -1,5 +1,13 @@
 <Project Sdk="Godot.NET.Sdk/3.2.3">
   <PropertyGroup>
+    <LangVersion>9.0</LangVersion>
     <TargetFramework>net472</TargetFramework>
   </PropertyGroup>
+  <ItemGroup>
+    <Reference Include = "water_tank_win64">
+      <Private>false</Private>
+      <HintPath>$(ProjectDir)water_tank_win64.dll</HintPath>
+    </Reference>
+
+  </ItemGroup>
 </Project>
