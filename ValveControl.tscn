@@ -1,7 +1,11 @@
-[gd_scene format=2]
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://ValveControl.cs" type="Script" id=1]
 
 [node name="Control" type="Control"]
-margin_right = 157.0
+margin_right = 174.0
+margin_bottom = 40.0
+script = ExtResource( 1 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -21,7 +25,8 @@ text = "temp"
 [node name="HSlider" type="HSlider" parent="VBoxContainer"]
 margin_top = 18.0
 margin_right = 171.0
-margin_bottom = 48.0
+margin_bottom = 34.0
 __meta__ = {
 "_edit_use_anchors_": false
 }
+[connection signal="value_changed" from="VBoxContainer/HSlider" to="." method="_on_HSlider_value_changed"]

@@ -32,13 +32,15 @@ public class EditValueScene : Node2D
         water_tank.crossArea = float.Parse(CrossSectionText);
         water_tank.currentVol = float.Parse(CurrentVolText);
         water_tank.maxVol = float.Parse(MaxVolText);
-
+        water_tank.startVol = water_tank.currentVol;
         //Pass New water tank to water tank instance
+        GetTree().CallGroup("WaterTanks","PauseButton");
         EmitSignal(nameof(send_and_set_new_values),water_tank);
 
         this.Visible=false;
     }
     public void _on_Cancel_Button_pressed(){
+        GetTree().CallGroup("WaterTanks","PauseButton");
         this.Visible=false;
     }
 

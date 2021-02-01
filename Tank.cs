@@ -1,45 +1,30 @@
 using Godot;
 using System;
 using System.Runtime.InteropServices;
- [StructLayout(LayoutKind.Sequential)] public struct ExtU_water_tank_T{
-     public double flow_in;
-     public double flow_out;
-     public double StartVol;
- }; 
 
-[StructLayout(LayoutKind.Sequential)]public struct ExtY_water_tank_T{
-    public double CurrentVol;  
-};
+
 public class Tank : KinematicBody2D{
     //======= Import functions from water_tank_win64.dll ===========
-    
-    //initializes the water tank matlab model
-    [DllImport("water_tank_win64.dll")] public static extern void water_tank_initialize(); 
-    
-    //steps the simulation forward by 1/60 seconds
-    [DllImport("water_tank_win64.dll")] public static extern void water_tank_step(); 
-    
-    //water tank model destructor
-    [DllImport("water_tank_win64.dll")] public static extern void water_tank_terminate(); 
-   
-    //sets flow rate in
-    [DllImport("water_tank_win64.dll")] public static extern void _setFlowIn(double FlowInInput); 
-    
+    [DllImport ("water_tank_win64")] static extern IntPtr createWaterTank();
+    [DllImport("water_tank_win64")] static extern void setWaterTankInput(IntPtr waterTankPtr,double flow_in,double flow_out,double startVol);
+    [DllImport("water_tank_win64")] static extern double getWaterTankVolume(IntPtr waterTankPtr);
+    [DllImport("water_tank_win64")] static extern void waterTankStep(IntPtr waterTankPtr);
+    [DllImport("water_tank_win64")] static extern void waterTankDestructor(IntPtr waterTankPtr);
+    //[DllImport("water_tank_win64")] static extern int test();
 
-    [DllImport("water_tank_win64.dll")] public static extern void _setFlowOut(double FlowOutInput); //sets flow rate out
+    IntPtr waterTankPtr = createWaterTank();
+
     
-    //sets initial volume
-    [DllImport("water_tank_win64.dll")] public static extern void _setStartVol(double StartVolInput);
     
-    //returns current volume, calculated from differential equation dV/dt = flow in - flow out
-    [DllImport("water_tank_win64.dll")] public static extern double _getCurrentVol(); 
     //===================================================================
     [Export]public float x_coor =0, y_coor =0, wall_thickness =4, wall_height=100, wall_width=50;
     [Export]public float fill_percent;
-    [Export]public float crossArea, maxVol, currentVol;
-   
+    [Export]public float crossArea, maxVol, currentVol, startVol;
+    [Export]public float InputFlow,outputFlow;
+
+    public bool started = false, paused = false;
     public override void _Draw(){
-       draw_tank(x_coor,y_coor,wall_thickness,wall_height,wall_width,fill_percent);
+       draw_tank(x_coor,y_coor,wall_thickness,wall_height,wall_width,currentVol/maxVol);
     }
 
     public void draw_tank(float x,float y, float thickness,float height,float width, float fill_percent){
@@ -54,23 +39,32 @@ public class Tank : KinematicBody2D{
         TankHitbox.Position = new Vector2(x_coor+wall_width/2+wall_thickness,y_coor+(wall_height)/2);
         
         //Draw tank
+
         Color tank_wall_color = new Color("7F7F7F");
         Color water_color = new Color ("0000FF");
+        
         DrawRect(new Rect2(x,y,thickness,height),tank_wall_color); //left tank wall
 	    DrawRect(new Rect2(x+width+thickness,y,thickness,height),tank_wall_color);   //right tank wall
-	    DrawRect(new Rect2(x+thickness,y+height-thickness,width,thickness),tank_wall_color); //bottom tank wall
+        DrawRect(new Rect2(x+thickness,y+height-thickness,width,thickness),tank_wall_color); //bottom tank wall
         
         //Draw Water
-	    DrawRect(new Rect2(x+thickness,(y+height-thickness)-(height-thickness)*fill_percent,width,(height-thickness)*fill_percent),water_color);
-
+        if(fill_percent > 1){
+            DrawRect(new Rect2(x+thickness,(y+height-thickness)-(height-thickness),width,(height-thickness)),new Color("FF0000"));
+        }
+        else {
+            DrawRect(new Rect2(x+thickness,(y+height-thickness)-(height-thickness)*fill_percent,width,(height-thickness)*fill_percent),water_color);
+        }
     }
     // Called when the node enters the scene tree for the first time.
     public override void _Ready(){
-        water_tank_initialize();
+        AddToGroup("WaterTanks");
 
-        currentVol = 0.0f;
-        maxVol = 0.0f;
-        crossArea = 0.0f;
+        started = false;
+        paused = false;
+        currentVol = startVol;
+        maxVol = 10f;
+        crossArea = 1.0f;
+        setWaterTankInput(waterTankPtr,0,0,startVol);
         updateTankInfo();
         ((RichTextLabel) GetNode("TankInfo")).Visible=false;
         ((Button) GetNode("Edit")).Visible=false; 
@@ -81,9 +75,20 @@ public class Tank : KinematicBody2D{
 
 
     public override void _PhysicsProcess(float delta){
-        Update();
-        water_tank_step();
-        //GD.Print(_getCurrentVol());
+        
+            if(started&&!paused){
+                waterTankStep(waterTankPtr);
+                currentVol = (float) getWaterTankVolume(waterTankPtr);
+                if(currentVol<0){
+                    currentVol = 0;
+                }
+            }
+            
+            setWaterTankInput(waterTankPtr,InputFlow,outputFlow,currentVol);
+
+            Update();
+
+        //GD.Print(this.Name +" "+_getCurrentVol().ToString());
     }
 
     
@@ -106,6 +111,7 @@ public class Tank : KinematicBody2D{
     [Signal]
     public delegate void _on_tank_EditInfo(Tank watertank);
     public void _on_Edit_pressed(){
+        GetTree().CallGroup("WaterTanks","PauseButton");
         EmitSignal(nameof(_on_tank_EditInfo),this);
     }
 
@@ -138,9 +144,32 @@ public class Tank : KinematicBody2D{
     }
 
     public void _on_EditValue_send_and_set_new_values(Tank input){
+        waterTankDestructor(waterTankPtr);
+        waterTankPtr = createWaterTank();
+        setWaterTankInput(waterTankPtr,InputFlow,outputFlow,currentVol);
+
+        
         //this.x_coor = input.x_coor;
         //Change respective variables
     }
+    public void StartStop(){
+        if(!started){
+            started = true;
+            paused = false;
+        }
+        else{
+            //GetTree().ReloadCurrentScene();
+        }
+    }
 
+    public void PauseButton(){
+        if(!paused){
+            paused=true;
+        }
+        else{
+            paused=false;
+        }
+    }
     
 }
+

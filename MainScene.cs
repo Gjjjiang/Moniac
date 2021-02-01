@@ -12,13 +12,21 @@ public class MainScene : Node2D{
 
         ((Button) GetNode("Controls/Start_Stop")).Text = "Start";
         ((Button) GetNode("Controls/PauseButton")).Text = "Pause";
+        
+        Tank tank1 = (Tank)GetNode("Tank");
+        Tank tank2 = (Tank)GetNode("Tank2");
+        Tank tank3 = (Tank)GetNode("Tank3");
+
+        tank1.currentVol = 5;
+        tank2.currentVol = 0;
+        tank3.currentVol = 0;
+        flowUpdate();
+
     }
 
     //  // Called every frame. 'delta' is the elapsed time since the previous frame.
     public override void _PhysicsProcess(float delta){
-        if(started && !paused){
-            ((Tank) GetNode("Tank2")).fill_percent = 0.5f;
-        }
+        flowUpdate();
     }
 
     public void _on_Start_Stop_pressed(){
@@ -26,6 +34,7 @@ public class MainScene : Node2D{
             started = true;
             paused = false;
             ((Button) GetNode("Controls/Start_Stop")).Text = "Reset";
+            GetTree().CallGroup("WaterTanks","StartStop");
 
         }
         else{
@@ -36,24 +45,52 @@ public class MainScene : Node2D{
     public void _on_PauseButton_pressed(){
         if(!paused){
             ((Button) GetNode("Controls/PauseButton")).Text = "Continue";
+            GetTree().CallGroup("WaterTanks","PauseButton");
             paused=true;
         }
         else{
             ((Button) GetNode("Controls/PauseButton")).Text = "Pause";
+            GetTree().CallGroup("WaterTanks","PauseButton");
             paused=false;
         }
     }
+    public float slider,slider2,slider3;
+    public void flowUpdate(){
+        Tank tank1 = (Tank)GetNode("Tank");
+        Tank tank2 = (Tank)GetNode("Tank2");
+        Tank tank3 = (Tank)GetNode("Tank3");
 
-    /*
-    public override void _Input(InputEvent @event){
-        // Mouse in viewport coordinates.
-        if (@event is InputEventMouseButton eventMouseButton)
-            GD.Print("Mouse Click/Unclick at: ", eventMouseButton.Position);
-        else if (@event is InputEventMouseMotion eventMouseMotion)
-            GD.Print("Mouse Motion at: ", eventMouseMotion.Position);
+        Pipe pipe1 = (Pipe)GetNode("Pipe");
+        Pipe pipe2 = (Pipe)GetNode("Pipe2");
+        Pipe pipe3 = (Pipe)GetNode("Pipe3");
 
-        // Print the size of the viewport.
-        GD.Print("Viewport Resolution is: ", GetViewportRect().Size);
+
+        pipe1.physicalMaxFlow = 5;
+        pipe2.physicalMaxFlow = 5;
+        pipe3.physicalMaxFlow = 5;
+
+
+        pipe1.currentMaxFlow = (float)Math.Sqrt(tank1.currentVol/tank1.crossArea);
+        pipe2.currentMaxFlow = (float)Math.Sqrt(tank1.currentVol/tank1.crossArea);
+        pipe3.currentMaxFlow = (float)Math.Sqrt(tank2.currentVol/tank2.crossArea);
+        tank1.InputFlow = 0;
+
+        tank1.outputFlow = pipe1.currentMaxFlow * slider + pipe2.currentMaxFlow * slider2;
+        tank2.InputFlow = pipe2.currentMaxFlow *slider2;
+        tank2.outputFlow = pipe3.currentMaxFlow * slider3;
+
+        tank3.InputFlow = pipe1.currentMaxFlow*slider + pipe3.currentMaxFlow*slider3;
     }
-    */
+
+    void _on_HSlider_value_changed(float in_slider){
+        slider = in_slider/100;
+    }
+
+    void _on_HSlider2_value_changed(float in_slider){
+        slider2 = in_slider/100;
+    }
+
+    void _on_HSlider3_value_changed(float in_slider){
+        slider3 = in_slider/100;
+    }
 }
