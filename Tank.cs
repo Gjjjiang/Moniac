@@ -19,12 +19,12 @@ public class Tank : KinematicBody2D{
     //===================================================================
     [Export]public float x_coor =0, y_coor =0, wall_thickness =4, wall_height=100, wall_width=50;
     [Export]public float fill_percent;
-    [Export]public float crossArea, maxVol, currentVol, startVol;
-    [Export]public float InputFlow,outputFlow;
+    [Export]public double crossArea, maxVol, currentVol, startVol;
+    [Export]public double InputFlow,outputFlow;
 
     public bool started = false, paused = false;
     public override void _Draw(){
-       draw_tank(x_coor,y_coor,wall_thickness,wall_height,wall_width,currentVol/maxVol);
+       draw_tank(x_coor,y_coor,wall_thickness,wall_height,wall_width,(float)(currentVol/maxVol));
     }
 
     public void draw_tank(float x,float y, float thickness,float height,float width, float fill_percent){
@@ -62,8 +62,8 @@ public class Tank : KinematicBody2D{
         started = false;
         paused = false;
         currentVol = startVol;
-        maxVol = 10f;
-        crossArea = 1.0f;
+        maxVol = 10;
+        crossArea = 1.0;
         setWaterTankInput(waterTankPtr,0,0,startVol);
         updateTankInfo();
         ((RichTextLabel) GetNode("TankInfo")).Visible=false;
@@ -93,10 +93,11 @@ public class Tank : KinematicBody2D{
 
     
     public void updateTankInfo(){
+
         ((RichTextLabel)GetNode("TankInfo")).BbcodeText = 
-        "Current Volume: " + currentVol.ToString() + " m^3\n" +
-        "Water Height: "+ (currentVol/crossArea).ToString()+ " m \n" + 
-        "Cross Sectional Area: " + (crossArea).ToString()+ "m^2";
+        "Current Volume: " + currentVol.ToString("N3") + " m^3\n" +
+        "Water Height: "+ (currentVol/crossArea).ToString("N3")+ " m \n" + 
+        "Cross Sectional Area: " + (crossArea).ToString("N3")+ "m^2";
     }
 
     //Signal Emitters and Listeners
