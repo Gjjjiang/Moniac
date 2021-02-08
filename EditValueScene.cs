@@ -19,9 +19,8 @@ public class EditValueScene : Node2D
         //set all text field to current values
 
     }
-    [Signal]
-    public delegate void send_and_set_new_values(Tank output);
-    
+    [Signal] public delegate void _on_EditValue_send_and_set_new_values();
+    //public void _on_EditValue_send_and_set_new_values()
     public void _on_Set_pressed(){
         //Get string from respective LineEdit Text Fields
         String CrossSectionText = ((LineEdit) GetNode("Control/VBoxContainer/LineEdit_CrossSectionArea")).Text;
@@ -29,13 +28,13 @@ public class EditValueScene : Node2D
         String MaxVolText = ((LineEdit) GetNode("Control/VBoxContainer/LineEdit_MaxVol")).Text;
         //Assign Respective Values to Water Tank
 
-        water_tank.crossArea = float.Parse(CrossSectionText);
-        water_tank.currentVol = float.Parse(CurrentVolText);
-        water_tank.maxVol = float.Parse(MaxVolText);
+        water_tank.crossArea = double.Parse(CrossSectionText);
+        water_tank.currentVol = double.Parse(CurrentVolText);
+        water_tank.maxVol = double.Parse(MaxVolText);
         water_tank.startVol = water_tank.currentVol;
+        EmitSignal(nameof(_on_EditValue_send_and_set_new_values));
         //Pass New water tank to water tank instance
         GetTree().CallGroup("WaterTanks","PauseButton");
-        EmitSignal(nameof(send_and_set_new_values),water_tank);
 
         this.Visible=false;
     }

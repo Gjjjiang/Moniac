@@ -45,16 +45,17 @@ public class MainScene : Node2D{
     public void _on_PauseButton_pressed(){
         if(!paused){
             ((Button) GetNode("Controls/PauseButton")).Text = "Continue";
-            GetTree().CallGroup("WaterTanks","PauseButton");
+           
             paused=true;
         }
         else{
             ((Button) GetNode("Controls/PauseButton")).Text = "Pause";
-            GetTree().CallGroup("WaterTanks","PauseButton");
+            
             paused=false;
         }
+        GetTree().CallGroup("WaterTanks","PauseButton");
     }
-    public float slider,slider2,slider3;
+    public double slider,slider2,slider3;
     public void flowUpdate(){
         Tank tank1 = (Tank)GetNode("Tank");
         Tank tank2 = (Tank)GetNode("Tank2");
@@ -64,33 +65,34 @@ public class MainScene : Node2D{
         Pipe pipe2 = (Pipe)GetNode("Pipe2");
         Pipe pipe3 = (Pipe)GetNode("Pipe3");
 
+        pipe1.ConnectPipe(tank1,tank3);
+        pipe2.ConnectPipe(tank1,tank2);
+        pipe3.ConnectPipe(tank2,tank3);
 
         pipe1.physicalMaxFlow = 5;
         pipe2.physicalMaxFlow = 5;
         pipe3.physicalMaxFlow = 5;
 
 
-        pipe1.currentMaxFlow = (float)Math.Sqrt(tank1.currentVol/tank1.crossArea);
-        pipe2.currentMaxFlow = (float)Math.Sqrt(tank1.currentVol/tank1.crossArea);
-        pipe3.currentMaxFlow = (float)Math.Sqrt(tank2.currentVol/tank2.crossArea);
-        tank1.InputFlow = 0;
+        pipe1.currentMaxFlow = (double)Math.Sqrt(tank1.currentVol/tank1.crossArea);
+        pipe2.currentMaxFlow = (double)Math.Sqrt(tank1.currentVol/tank1.crossArea);
+        pipe3.currentMaxFlow = (double)Math.Sqrt(tank2.currentVol/tank2.crossArea);
+        
+        pipe1.currentFlow = pipe1.currentMaxFlow * slider;
+        pipe2.currentFlow = pipe2.currentMaxFlow * slider2;
+        pipe3.currentFlow = pipe3.currentMaxFlow * slider3;
 
-        tank1.outputFlow = pipe1.currentMaxFlow * slider + pipe2.currentMaxFlow * slider2;
-        tank2.InputFlow = pipe2.currentMaxFlow *slider2;
-        tank2.outputFlow = pipe3.currentMaxFlow * slider3;
-
-        tank3.InputFlow = pipe1.currentMaxFlow*slider + pipe3.currentMaxFlow*slider3;
     }
 
     void _on_HSlider_value_changed(float in_slider){
-        slider = in_slider/100;
+        slider =(double) (in_slider/100);
     }
 
     void _on_HSlider2_value_changed(float in_slider){
-        slider2 = in_slider/100;
+        slider2 = (double) (in_slider/100);
     }
 
     void _on_HSlider3_value_changed(float in_slider){
-        slider3 = in_slider/100;
+        slider3 = (double) (in_slider/100);
     }
 }

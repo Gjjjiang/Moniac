@@ -19,13 +19,12 @@ y_coor = 50.0
 "WaterTanks",
 ] instance=ExtResource( 1 )]
 collision_layer = 2147483649
-x_coor = 300.0
-y_coor = 100.0
-outputFlow = 2.0
-
-[node name="Tank3" parent="." instance=ExtResource( 1 )]
 x_coor = 200.0
 y_coor = 200.0
+
+[node name="Tank3" parent="." instance=ExtResource( 1 )]
+x_coor = 100.0
+y_coor = 350.0
 
 [node name="Controls" type="VBoxContainer" parent="."]
 margin_left = 819.497
@@ -90,7 +89,6 @@ margin_right = 183.0
 margin_bottom = 151.0
 
 [node name="Pipe" parent="." instance=ExtResource( 5 )]
-input_pickable = true
 physicalMaxFlow = 5.0
 
 [node name="Pipe2" parent="." instance=ExtResource( 5 )]

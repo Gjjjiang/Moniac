@@ -1,28 +1,32 @@
 using Godot;
 using System;
+using System.Collections.Generic; 
 using System.Runtime.InteropServices;
 
 
 public class Tank : KinematicBody2D{
     //======= Import functions from water_tank_win64.dll ===========
-    [DllImport ("water_tank_win64")] static extern IntPtr createWaterTank();
-    [DllImport("water_tank_win64")] static extern void setWaterTankInput(IntPtr waterTankPtr,double flow_in,double flow_out,double startVol);
-    [DllImport("water_tank_win64")] static extern double getWaterTankVolume(IntPtr waterTankPtr);
-    [DllImport("water_tank_win64")] static extern void waterTankStep(IntPtr waterTankPtr);
-    [DllImport("water_tank_win64")] static extern void waterTankDestructor(IntPtr waterTankPtr);
+    [DllImport ("water_tank_win64")] static extern IntPtr createWaterTank(); //Initialise water tank object in DLL and returns pointer said object
+    [DllImport("water_tank_win64")] static extern void setWaterTankInput(IntPtr waterTankPtr,double flow_in,double flow_out,double startVol); //Set Inputs of Water Tank Simulation
+    [DllImport("water_tank_win64")] static extern double getWaterTankVolume(IntPtr waterTankPtr); //Retrieves Current Volume from DLL Simulation
+    [DllImport("water_tank_win64")] static extern void waterTankStep(IntPtr waterTankPtr); //Steps Simulation forward by 1/60 s
+    [DllImport("water_tank_win64")] static extern void waterTankDestructor(IntPtr waterTankPtr); //Destroys Water Tank Object
     //[DllImport("water_tank_win64")] static extern int test();
 
     IntPtr waterTankPtr = createWaterTank();
 
-    
-    
     //===================================================================
+    //===== Water Tank Drawing Information ==============================
     [Export]public float x_coor =0, y_coor =0, wall_thickness =4, wall_height=100, wall_width=50;
     [Export]public float fill_percent;
-    [Export]public double crossArea, maxVol, currentVol, startVol;
-    [Export]public double InputFlow,outputFlow;
+    //===================================================================
 
+    //===== Water Tank Characteristics ==================================
+    [Export]public double crossArea, maxVol, currentVol, startVol;//m^2 and L
+    [Export]public double TotalInputFlow,TotalOutputFlow;//L/s
+    public Dictionary<String,double> outflows = new Dictionary<String,double>(),inflows = new Dictionary<String,double>(); 
     public bool started = false, paused = false;
+    //===================================================================
     public override void _Draw(){
        draw_tank(x_coor,y_coor,wall_thickness,wall_height,wall_width,(float)(currentVol/maxVol));
     }
@@ -55,7 +59,7 @@ public class Tank : KinematicBody2D{
             DrawRect(new Rect2(x+thickness,(y+height-thickness)-(height-thickness)*fill_percent,width,(height-thickness)*fill_percent),water_color);
         }
     }
-    // Called when the node enters the scene tree for the first time.
+
     public override void _Ready(){
         AddToGroup("WaterTanks");
 
@@ -73,18 +77,19 @@ public class Tank : KinematicBody2D{
     }
     
 
-
+    //Using Physics Process to ensure call every 1/60 sec
     public override void _PhysicsProcess(float delta){
-        
+        UpdateTotalFlows();
             if(started&&!paused){
                 waterTankStep(waterTankPtr);
-                currentVol = (float) getWaterTankVolume(waterTankPtr);
+                currentVol = (double) getWaterTankVolume(waterTankPtr);
+                //GD.Print(currentVol);
                 if(currentVol<0){
                     currentVol = 0;
                 }
             }
             
-            setWaterTankInput(waterTankPtr,InputFlow,outputFlow,currentVol);
+            setWaterTankInput(waterTankPtr,TotalInputFlow,TotalOutputFlow,currentVol);
 
             Update();
 
@@ -109,8 +114,7 @@ public class Tank : KinematicBody2D{
     }
 
 
-    [Signal]
-    public delegate void _on_tank_EditInfo(Tank watertank);
+    [Signal] public delegate void _on_tank_EditInfo(Tank watertank);
     public void _on_Edit_pressed(){
         GetTree().CallGroup("WaterTanks","PauseButton");
         EmitSignal(nameof(_on_tank_EditInfo),this);
@@ -144,14 +148,10 @@ public class Tank : KinematicBody2D{
         
     }
 
-    public void _on_EditValue_send_and_set_new_values(Tank input){
+    public void _on_EditValue_send_and_set_new_values(){
         waterTankDestructor(waterTankPtr);
         waterTankPtr = createWaterTank();
-        setWaterTankInput(waterTankPtr,InputFlow,outputFlow,currentVol);
-
-        
-        //this.x_coor = input.x_coor;
-        //Change respective variables
+        setWaterTankInput(waterTankPtr,TotalInputFlow,TotalOutputFlow,currentVol);
     }
     public void StartStop(){
         if(!started){
@@ -164,12 +164,31 @@ public class Tank : KinematicBody2D{
     }
 
     public void PauseButton(){
+        
         if(!paused){
             paused=true;
         }
         else{
             paused=false;
         }
+    }
+
+    public void UpdateTotalFlows(){
+        TotalOutputFlow = 0;
+        TotalInputFlow = 0;
+        
+        foreach(KeyValuePair<String,double> item in outflows){
+            TotalOutputFlow += item.Value;
+            
+        }
+       
+
+        foreach(KeyValuePair<String,double> item in inflows){
+            TotalInputFlow += item.Value;
+           // GD.Print(TotalInputFlow);
+        }
+         //GD.Print();
+
     }
     
 }
