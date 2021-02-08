@@ -1,0 +1,19 @@
+[remap]
+
+importer="wavefront_obj"
+type="Mesh"
+path="res://.import/pch.obj-553463ace6545945a6e45742309246bc.mesh"
+
+[deps]
+
+files=[ "res://.import/pch.obj-553463ace6545945a6e45742309246bc.mesh" ]
+
+source_file="res://WaterTankDLLSourceFiles/water_tank_win64/x64/Debug/pch.obj"
+dest_files=[ "res://.import/pch.obj-553463ace6545945a6e45742309246bc.mesh", "res://.import/pch.obj-553463ace6545945a6e45742309246bc.mesh" ]
+
+[params]
+
+generate_tangents=true
+scale_mesh=Vector3( 1, 1, 1 )
+offset_mesh=Vector3( 0, 0, 0 )
+optimize_mesh=true
