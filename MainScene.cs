@@ -1,12 +1,22 @@
 using Godot;
 using System;
+using System.Collections.Generic; 
+using System.Runtime.InteropServices;
+unsafe public class MainScene : Node2D{
+     [DllImport ("co2modelfunc")] unsafe static extern void co2modelfunc(double A, double F, double L, double O, double *sol_tA, double
+                  *sol_tF, double *sol_tL, double *sol_tO);
 
-public class MainScene : Node2D{
-    
+
     public bool started = false, paused = false;
     
 
     public override void _Ready(){
+        
+        
+        double sol1 =0,sol2 = 0,sol3 = 0, sol4 = 0;
+
+        co2modelfunc(1,2,3,4, &sol1, &sol2, &sol3, &sol4);
+
         started = false;
         paused = false;
 
