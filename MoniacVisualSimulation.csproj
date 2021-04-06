@@ -1,14 +1,12 @@
 <Project Sdk="Godot.NET.Sdk/3.2.3">
   <PropertyGroup>
-    <LangVersion>9.0</LangVersion>
+    <LangVersion>7.0</LangVersion>
     <TargetFramework>net472</TargetFramework>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include = "water_tank_win64">
       <Private>false</Private>
       <HintPath>$(ProjectDir)water_tank_win64.dll</HintPath>
-      
     </Reference>
 
   </ItemGroup>

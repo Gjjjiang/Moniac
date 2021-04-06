@@ -8,14 +8,15 @@ public class Pipe : Line2D{
     public Tank tank_from, tank_to;
     public double pipe_inflow, pipe_outflow;
     public override void _Ready(){
-        
-
+ 
+        ((RichTextLabel)GetNode("PipeName")).BbcodeText = this.Name;
 
     }
     public void ConnectPipe(Tank tank_from_in,Tank tank_to_in){
         tank_from = tank_from_in;
         tank_to = tank_to_in;
         SetPipePosition();
+        ((RichTextLabel)GetNode("PipeName")).SetPosition((this.GetPointPosition(0)+this.GetPointPosition(1))/2);
     }
 
     public void SetPipePosition(){

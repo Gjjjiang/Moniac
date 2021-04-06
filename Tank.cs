@@ -22,8 +22,8 @@ public class Tank : KinematicBody2D{
     //===================================================================
 
     //===== Water Tank Characteristics ==================================
-    [Export]public double crossArea, maxVol, currentVol, startVol;//m^2 and L
-    [Export]public double TotalInputFlow,TotalOutputFlow;//L/s
+    [Export]public double crossArea, maxVol, currentVol, startVol;// m^2 and L
+    [Export]public double TotalInputFlow,TotalOutputFlow;// L/s
     public Dictionary<String,double> outflows = new Dictionary<String,double>(),inflows = new Dictionary<String,double>(); 
     public bool started = false, paused = false;
     //===================================================================
@@ -70,6 +70,9 @@ public class Tank : KinematicBody2D{
         crossArea = 1.0;
         setWaterTankInput(waterTankPtr,0,0,startVol);
         updateTankInfo();
+        ((RichTextLabel)GetNode("TankName")).SetPosition(new Vector2(x_coor,y_coor));
+        ((RichTextLabel)GetNode("TankName")).BbcodeText = this.Name;
+        ((RichTextLabel)GetNode("TankName")).Visible = true;
         ((RichTextLabel) GetNode("TankInfo")).Visible=false;
         ((Button) GetNode("Edit")).Visible=false; 
         ((Button) GetNode("Hide Info")).Visible=false;
@@ -108,6 +111,7 @@ public class Tank : KinematicBody2D{
     //Signal Emitters and Listeners
 
     public void _on_Hide_Info_pressed(){
+        ((RichTextLabel)GetNode("TankName")).Visible = true;
         ((RichTextLabel) GetNode("TankInfo")).Visible=false;
         ((Button) GetNode("Edit")).Visible=false; 
         ((Button) GetNode("Hide Info")).Visible=false;
@@ -140,7 +144,8 @@ public class Tank : KinematicBody2D{
             TankInfo.SetPosition(new Vector2(x_coor,y_coor));
             Edit.SetPosition(new Vector2(x_coor,y_coor+TankInfo.RectSize.y));
             Hide.SetPosition(new Vector2(x_coor+Edit.RectSize.x+4,y_coor+TankInfo.RectSize.y));
-            
+            ((RichTextLabel)GetNode("TankName")).Visible = false;
+            ((RichTextLabel)GetNode("TankName")).SetPosition(new Vector2(x_coor,y_coor));
             ((RichTextLabel) GetNode("TankInfo")).Visible=true;
             ((Button) GetNode("Edit")).Visible=true; 
             ((Button) GetNode("Hide Info")).Visible=true;

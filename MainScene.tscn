@@ -1,30 +1,14 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=7 format=2]
 
 [ext_resource path="res://Tank.tscn" type="PackedScene" id=1]
 [ext_resource path="res://Star_Stop.cs" type="Script" id=2]
 [ext_resource path="res://MainScene.cs" type="Script" id=3]
 [ext_resource path="res://PauseButton.cs" type="Script" id=4]
 [ext_resource path="res://Pipe.tscn" type="PackedScene" id=5]
+[ext_resource path="res://EditValueScene.tscn" type="PackedScene" id=6]
 
 [node name="Main" type="Node2D"]
 script = ExtResource( 3 )
-
-[node name="Tank" parent="." groups=[
-"WaterTanks",
-] instance=ExtResource( 1 )]
-x_coor = 100.0
-y_coor = 50.0
-
-[node name="Tank2" parent="." groups=[
-"WaterTanks",
-] instance=ExtResource( 1 )]
-collision_layer = 2147483649
-x_coor = 200.0
-y_coor = 200.0
-
-[node name="Tank3" parent="." instance=ExtResource( 1 )]
-x_coor = 100.0
-y_coor = 350.0
 
 [node name="Controls" type="VBoxContainer" parent="."]
 margin_left = 819.497
@@ -55,49 +39,43 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Label" type="Label" parent="Controls"]
-margin_top = 46.0
-margin_right = 183.0
-margin_bottom = 60.0
-text = "Valve 1"
-
-[node name="HSlider" type="HSlider" parent="Controls"]
-margin_top = 63.0
-margin_right = 183.0
-margin_bottom = 79.0
-
-[node name="Label2" type="Label" parent="Controls"]
-margin_top = 82.0
-margin_right = 183.0
-margin_bottom = 96.0
-text = "Valve 2"
-
-[node name="HSlider2" type="HSlider" parent="Controls"]
-margin_top = 99.0
-margin_right = 183.0
-margin_bottom = 115.0
-
-[node name="Label3" type="Label" parent="Controls"]
-margin_top = 118.0
-margin_right = 183.0
-margin_bottom = 132.0
-text = "Valve 3"
-
-[node name="HSlider3" type="HSlider" parent="Controls"]
-margin_top = 135.0
-margin_right = 183.0
-margin_bottom = 151.0
-
-[node name="Pipe" parent="." instance=ExtResource( 5 )]
+[node name="Consumption" parent="." instance=ExtResource( 5 )]
 physicalMaxFlow = 5.0
 
-[node name="Pipe2" parent="." instance=ExtResource( 5 )]
+[node name="Saving" parent="." instance=ExtResource( 5 )]
 physicalMaxFlow = 5.0
 
-[node name="Pipe3" parent="." instance=ExtResource( 5 )]
+[node name="Expenditure" parent="." instance=ExtResource( 5 )]
 physicalMaxFlow = 5.0
+
+[node name="Income" parent="." instance=ExtResource( 5 )]
+points = PoolVector2Array( 0, 0, 0, 0, 0, 0, 0, 0 )
+
+[node name="IncomeSplitter" parent="." groups=[
+"WaterTanks",
+] instance=ExtResource( 1 )]
+x_coor = 429.0
+y_coor = 50.0
+wall_thickness = 0.0
+wall_height = 0.0
+wall_width = 0.0
+
+[node name="Surplus" parent="." groups=[
+"WaterTanks",
+] instance=ExtResource( 1 )]
+collision_layer = 2147483649
+x_coor = 600.0
+y_coor = 200.0
+
+[node name="Transaction" parent="." groups=[
+"WaterTanks",
+] instance=ExtResource( 1 )]
+x_coor = 400.0
+y_coor = 350.0
+
+[node name="EditValue" parent="." instance=ExtResource( 6 )]
+visible = false
 [connection signal="pressed" from="Controls/Start_Stop" to="." method="_on_Start_Stop_pressed"]
 [connection signal="pressed" from="Controls/PauseButton" to="." method="_on_PauseButton_pressed"]
-[connection signal="value_changed" from="Controls/HSlider" to="." method="_on_HSlider_value_changed"]
-[connection signal="value_changed" from="Controls/HSlider2" to="." method="_on_HSlider2_value_changed"]
-[connection signal="value_changed" from="Controls/HSlider3" to="." method="_on_HSlider3_value_changed"]
+[connection signal="_on_tank_EditInfo" from="Surplus" to="EditValue" method="_on_Tank_on_tank_EditInfo"]
+[connection signal="_on_tank_EditInfo" from="Transaction" to="EditValue" method="_on_Tank_on_tank_EditInfo"]

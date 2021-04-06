@@ -5,6 +5,12 @@
 [node name="EditValue" type="Node2D"]
 script = ExtResource( 1 )
 
+[node name="Polygon2D" type="Polygon2D" parent="."]
+position = Vector2( 32.3162, 0 )
+scale = Vector2( 0.929645, 1 )
+color = Color( 0.45098, 0.45098, 0.45098, 1 )
+polygon = PoolVector2Array( 338.86, 159.796, 692.742, 160.835, 692.212, 408.75, 339.941, 406.631 )
+
 [node name="Control" type="Control" parent="."]
 margin_right = 1024.0
 margin_bottom = 600.0

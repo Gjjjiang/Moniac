@@ -1,35 +1,25 @@
 using Godot;
 using System;
-using System.Collections.Generic; 
-using System.Runtime.InteropServices;
-unsafe public class MainScene : Node2D{
-     [DllImport ("co2modelfunc")] unsafe static extern void co2modelfunc(double A, double F, double L, double O, double *sol_tA, double
-                  *sol_tF, double *sol_tL, double *sol_tO);
 
-
+public class MainScene : Node2D{
+    
     public bool started = false, paused = false;
     
 
     public override void _Ready(){
-        
-        
-        double sol1 =0,sol2 = 0,sol3 = 0, sol4 = 0;
-
-        co2modelfunc(1,2,3,4, &sol1, &sol2, &sol3, &sol4);
-
         started = false;
         paused = false;
 
         ((Button) GetNode("Controls/Start_Stop")).Text = "Start";
         ((Button) GetNode("Controls/PauseButton")).Text = "Pause";
         
-        Tank tank1 = (Tank)GetNode("Tank");
-        Tank tank2 = (Tank)GetNode("Tank2");
-        Tank tank3 = (Tank)GetNode("Tank3");
+        Tank IncomeSplitter = (Tank)GetNode("Tank");
+        Tank Surplus = (Tank)GetNode("Surplus");
+        Tank Transaction = (Tank)GetNode("Transaction");
 
-        tank1.currentVol = 5;
-        tank2.currentVol = 0;
-        tank3.currentVol = 0;
+        Surplus.currentVol = 0.9;
+        Transaction.currentVol = 0.1;
+        
         flowUpdate();
 
     }
@@ -67,42 +57,38 @@ unsafe public class MainScene : Node2D{
     }
     public double slider,slider2,slider3;
     public void flowUpdate(){
-        Tank tank1 = (Tank)GetNode("Tank");
-        Tank tank2 = (Tank)GetNode("Tank2");
-        Tank tank3 = (Tank)GetNode("Tank3");
+        Tank IncomeSplitter = (Tank)GetNode("IncomeSplitter");
+        Tank Surplus = (Tank)GetNode("Surplus");
+        Tank Transaction = (Tank)GetNode("Transaction");
 
-        Pipe pipe1 = (Pipe)GetNode("Pipe");
-        Pipe pipe2 = (Pipe)GetNode("Pipe2");
-        Pipe pipe3 = (Pipe)GetNode("Pipe3");
+        Pipe Consumption = (Pipe)GetNode("Consumption");
+        Pipe Saving = (Pipe)GetNode("Saving");
+        Pipe Expenditure = (Pipe)GetNode("Expenditure");
+        Pipe Income = (Pipe)GetNode("Income");
 
-        pipe1.ConnectPipe(tank1,tank3);
-        pipe2.ConnectPipe(tank1,tank2);
-        pipe3.ConnectPipe(tank2,tank3);
+        Consumption.ConnectPipe(IncomeSplitter,Transaction);
+        Saving.ConnectPipe(IncomeSplitter,Surplus);
+        Expenditure.ConnectPipe(Surplus,Transaction);
+        Income.ConnectPipe(Transaction,IncomeSplitter);
 
-        pipe1.physicalMaxFlow = 5;
-        pipe2.physicalMaxFlow = 5;
-        pipe3.physicalMaxFlow = 5;
+        Income.SetPointPosition(3,Income.GetPointPosition(1));
+        Income.SetPointPosition(1,Income.GetPointPosition(0)- new Vector2(Transaction.wall_width+50,0));
+        Income.SetPointPosition(2,Income.GetPointPosition(3)- new Vector2(Transaction.wall_width+50,0));
+        ((RichTextLabel)GetNode("Income/PipeName")).SetPosition((Income.GetPointPosition(1)+Income.GetPointPosition(2))/2);
+        Consumption.physicalMaxFlow = 5;
+        Saving.physicalMaxFlow = 5;
+        Expenditure.physicalMaxFlow = 5;
 
 
-        pipe1.currentMaxFlow = (double)Math.Sqrt(tank1.currentVol/tank1.crossArea);
-        pipe2.currentMaxFlow = (double)Math.Sqrt(tank1.currentVol/tank1.crossArea);
-        pipe3.currentMaxFlow = (double)Math.Sqrt(tank2.currentVol/tank2.crossArea);
+        Consumption.currentMaxFlow = (double)Math.Sqrt(IncomeSplitter.currentVol/IncomeSplitter.crossArea);
+        Saving.currentMaxFlow = (double)Math.Sqrt(IncomeSplitter.currentVol/IncomeSplitter.crossArea);
+        Expenditure.currentMaxFlow = (double)Math.Sqrt(Surplus.currentVol/Surplus.crossArea);
         
-        pipe1.currentFlow = pipe1.currentMaxFlow * slider;
-        pipe2.currentFlow = pipe2.currentMaxFlow * slider2;
-        pipe3.currentFlow = pipe3.currentMaxFlow * slider3;
+        Consumption.currentFlow = Consumption.currentMaxFlow * 0.2;
+        Saving.currentFlow = Saving.currentMaxFlow * slider2;
+        Expenditure.currentFlow = Expenditure.currentMaxFlow * slider3;
 
     }
 
-    void _on_HSlider_value_changed(float in_slider){
-        slider =(double) (in_slider/100);
-    }
 
-    void _on_HSlider2_value_changed(float in_slider){
-        slider2 = (double) (in_slider/100);
-    }
-
-    void _on_HSlider3_value_changed(float in_slider){
-        slider3 = (double) (in_slider/100);
-    }
 }
